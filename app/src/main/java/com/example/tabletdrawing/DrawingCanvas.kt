@@ -1,82 +1,120 @@
 package com.example.tabletdrawing
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.graphics.createBitmap
 
-class DrawingCanvas: View {
+class DrawingCanvas : View {
 
-    constructor(context: Context): super(context) {
+    constructor(context: Context) : super(context) {
         init()
     }
 
-    constructor(context: Context, attributeSet: AttributeSet?): super(context, attributeSet) {
+    constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet) {
         init()
     }
 
-    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int): super(context, attributeSet, defStyleAttr) {
+    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attributeSet,
+        defStyleAttr
+    ) {
         init()
     }
 
-    private val penColor = Color.BLACK
-    private val penSize = 5
     private lateinit var paint: Paint
-    private var drawingBitmap: Bitmap? = null
     private lateinit var drawInfoList: ArrayList<Pen>
+    private val arrayList = arrayListOf<Pen>()
+    private var bitmap: Bitmap? = null
+    private var bitmapList = arrayListOf<Bitmap>()
 
     // 초기화
     private fun init() {
+        //ANTI_ALIAS_FLAG : 계단현상 방지
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        drawingBitmap = null
         drawInfoList = arrayListOf()
+
     }
 
-    //현재까지 그린 그림을 bitmap으로 반환하기
-//    fun getCurrentCanvas(): Bitmap {
-//        val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-//        val canvas = Canvas(bitmap)
-//        this.draw(canvas)
-//        return bitmap
-//    }
 
     //실질적으로 그리기??
-    override fun onDraw(canvas: Canvas?) {
+    @SuppressLint("DrawAllocation")
+    //이 canvas 는 항상 초기화된 canvas
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas?.drawColor(Color.WHITE)
 
-        for (i in 0 until drawInfoList.size) {
-            val pen = drawInfoList[i]
-            paint.color = penColor
-            paint.strokeWidth = penSize.toFloat()
+        Log.d("yw event status", "drawing")
+//
+//        bitmapList.forEach {
+//            canvas.drawBitmap(it, 0f, 0f, null)
+//        }
+        bitmap?.let {
+            canvas.drawBitmap(it, 0f, 0f, null)
+        }
 
-            if (pen.isMove()) {
-                val prev = drawInfoList[i - 1]
-                canvas?.drawLine(prev.x, prev.y, pen.x, pen.y, paint)
+        paint.color = Color.BLACK
+        paint.strokeWidth = 5f
+
+
+        for (i in arrayList.indices) {
+            val current = arrayList[i]
+
+            if (current.isMove()) {
+                val prev = arrayList[i - 1]
+                canvas.drawLine(prev.x, prev.y, current.x, current.y, paint)
             }
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
 //        return super.onTouchEvent(event)
-        val action = event?.action
-        val state = if (action == MotionEvent.ACTION_DOWN) {
-            0
-        } else {
-            1
+
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                Log.d("yw event status", "down")
+                val state = 0
+                arrayList.add(Pen(x = event.x, y = event.y, moveStatus = state))
+            }
+            MotionEvent.ACTION_MOVE -> {
+                Log.d("yw event status", "move")
+                val state = 1
+                arrayList.add(Pen(x = event.x, y = event.y, moveStatus = state))
+            }
+            MotionEvent.ACTION_UP -> {
+                Log.d("yw event status", "up")
+                drawBitmap(arrayList)
+                arrayList.clear()
+            }
         }
-        drawInfoList.add(
-            Pen(
-                x = event?.x!!,
-                y = event.y!!,
-                moveStatus = state
-            )
-        )
+        //invalidate
         invalidate()
         return true
+    }
+
+    private fun drawBitmap(arrayList: ArrayList<Pen>) {
+        val canvas = Canvas(bitmap!!)
+
+        for (i in arrayList.indices) {
+            val current = arrayList[i]
+
+            if (current.isMove()) {
+                val prev = arrayList[i - 1]
+                canvas.drawLine(prev.x, prev.y, current.x, current.y, paint)
+            }
+        }
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+
+        bitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
     }
 }

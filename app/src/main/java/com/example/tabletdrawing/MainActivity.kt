@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import com.example.tabletdrawing.databinding.ActivityMainBinding
 
@@ -18,12 +19,21 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.button.setOnClickListener {
-            startActivity(Intent(this, NextActivity::class.java))
-        }
-
         val canvas = DrawingCanvas(this)
         binding.container.addView(canvas)
+
+        Log.d("containerSize", "create ${binding.container.width} & ${binding.container.height}")
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        Log.d("containerSize", " start ${binding.container.width} & ${binding.container.height}")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Log.d("containerSize", "resume ${binding.container.width} & ${binding.container.height}")
+    }
 }
