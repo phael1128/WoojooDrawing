@@ -8,12 +8,20 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/clear"
+        android:id="@+id/pen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="clear"
+        android:text="그리기"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/eraser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="지우기"
+        app:layout_constraintTop_toBottomOf="@+id/pen"
+        app:layout_constraintEnd_toEndOf="@+id/pen"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

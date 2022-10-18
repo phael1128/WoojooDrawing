@@ -22,6 +22,13 @@ class MainActivity : AppCompatActivity() {
         val canvas = DrawingCanvas(this)
         binding.container.addView(canvas)
 
+        binding.pen.setOnClickListener {
+            canvas.setMode(DrawingCanvas.MODE_PEN)
+        }
+
+        binding.eraser.setOnClickListener {
+            canvas.setMode(DrawingCanvas.MODE_ERASER)
+        }
         Log.d("containerSize", "create ${binding.container.width} & ${binding.container.height}")
     }
 

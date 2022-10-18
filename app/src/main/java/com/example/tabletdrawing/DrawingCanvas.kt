@@ -34,14 +34,19 @@ class DrawingCanvas : View {
     private lateinit var drawInfoList: ArrayList<Pen>
     private val arrayList = arrayListOf<Pen>()
     private var bitmap: Bitmap? = null
-    private var bitmapList = arrayListOf<Bitmap>()
+    private var penMode = 1
 
     // 초기화
     private fun init() {
         //ANTI_ALIAS_FLAG : 계단현상 방지
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
         drawInfoList = arrayListOf()
+    }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+
+        bitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
     }
 
 
@@ -112,9 +117,12 @@ class DrawingCanvas : View {
         }
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
+    fun setMode(mode: Int) {
+        penMode = mode
+    }
 
-        bitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+    companion object {
+        const val MODE_PEN = 1
+        const val MODE_ERASER = 2
     }
 }
