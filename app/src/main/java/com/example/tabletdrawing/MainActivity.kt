@@ -29,6 +29,10 @@ class MainActivity : AppCompatActivity() {
         binding.eraser.setOnClickListener {
             canvas.setMode(DrawingCanvas.MODE_ERASER)
         }
+
+        binding.rectangle.setOnClickListener {
+            startActivity(Intent(this, RectangleDrawActivity::class.java))
+        }
         Log.d("containerSize", "create ${binding.container.width} & ${binding.container.height}")
     }
 

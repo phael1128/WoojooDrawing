@@ -14,7 +14,7 @@
         android:theme="@style/Theme.TabletDrawing"
         tools:targetApi="31">
         <activity
-            android:name=".NextActivity"
+            android:name=".RectangleDrawActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
