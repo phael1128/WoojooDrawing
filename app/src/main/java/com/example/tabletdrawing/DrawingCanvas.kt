@@ -14,27 +14,15 @@ import androidx.core.graphics.createBitmap
 
 class DrawingCanvas : View {
 
-    constructor(context: Context) : super(context) {
-        init()
-    }
+    constructor(context: Context) : super(context) { init() }
+    constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet) { init() }
+    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : super(context, attributeSet, defStyleAttr) { init() }
 
-    constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet) {
-        init()
-    }
-
-    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attributeSet,
-        defStyleAttr
-    ) {
-        init()
-    }
-
+    private var penMode  = 0
     private lateinit var paint: Paint
     private lateinit var drawInfoList: ArrayList<Pen>
     private val arrayList = arrayListOf<Pen>()
     private var bitmap: Bitmap? = null
-    private var penMode = 1
 
     // 초기화
     private fun init() {
@@ -57,10 +45,7 @@ class DrawingCanvas : View {
         super.onDraw(canvas)
 
         Log.d("yw event status", "drawing")
-//
-//        bitmapList.forEach {
-//            canvas.drawBitmap(it, 0f, 0f, null)
-//        }
+
         bitmap?.let {
             canvas.drawBitmap(it, 0f, 0f, null)
         }
@@ -80,28 +65,60 @@ class DrawingCanvas : View {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-//        return super.onTouchEvent(event)
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 Log.d("yw event status", "down")
-                val state = 0
-                arrayList.add(Pen(x = event.x, y = event.y, moveStatus = state))
+                actionDown(event)
             }
             MotionEvent.ACTION_MOVE -> {
                 Log.d("yw event status", "move")
-                val state = 1
-                arrayList.add(Pen(x = event.x, y = event.y, moveStatus = state))
+                actionMove(event)
             }
             MotionEvent.ACTION_UP -> {
                 Log.d("yw event status", "up")
-                drawBitmap(arrayList)
-                arrayList.clear()
+                actionUp(event)
             }
         }
         //invalidate
         invalidate()
         return true
+    }
+
+    private fun actionDown(event: MotionEvent) {
+        when (penMode) {
+            MODE_PEN -> {
+                val state = 0
+                arrayList.add(Pen(x = event.x, y = event.y, moveStatus = state))
+            }
+            MODE_ERASER -> {
+
+            }
+        }
+    }
+
+    private fun actionMove(event: MotionEvent) {
+        when (penMode) {
+            MODE_PEN -> {
+                val state = 1
+                arrayList.add(Pen(x = event.x, y = event.y, moveStatus = state))
+            }
+            MODE_ERASER -> {
+
+            }
+        }
+    }
+
+    private fun actionUp(event: MotionEvent) {
+        when (penMode) {
+            MODE_PEN -> {
+                drawBitmap(arrayList)
+                arrayList.clear()
+            }
+            MODE_ERASER -> {
+
+            }
+        }
     }
 
     private fun drawBitmap(arrayList: ArrayList<Pen>) {
