@@ -16,12 +16,20 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
-        android:id="@+id/eraser"
+        android:id="@+id/area_eraser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="지우기"
+        android:text="영역 지우개"
         app:layout_constraintTop_toBottomOf="@+id/pen"
         app:layout_constraintEnd_toEndOf="@+id/pen"/>
+
+    <Button
+        android:id="@+id/stroke_eraser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="획 지우개"
+        app:layout_constraintTop_toBottomOf="@+id/area_eraser"
+        app:layout_constraintEnd_toEndOf="@id/area_eraser"/>
 
     <Button
         android:id="@+id/rectangle"
@@ -29,7 +37,7 @@
         android:layout_height="wrap_content"
         android:text="사각형 그리기"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eraser"/>
+        app:layout_constraintTop_toBottomOf="@+id/stroke_eraser"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

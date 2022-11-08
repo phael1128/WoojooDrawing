@@ -1,13 +1,9 @@
 package com.example.tabletdrawing
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import com.example.tabletdrawing.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -26,8 +22,12 @@ class MainActivity : AppCompatActivity() {
             canvas.setMode(DrawingCanvas.MODE_PEN)
         }
 
-        binding.eraser.setOnClickListener {
-            canvas.setMode(DrawingCanvas.MODE_ERASER)
+        binding.areaEraser.setOnClickListener {
+            canvas.setMode(DrawingCanvas.MODE_AREA_ERASER)
+        }
+
+        binding.strokeEraser.setOnClickListener {
+            canvas.setMode(DrawingCanvas.MODE_STROKE_ERASER)
         }
 
         binding.rectangle.setOnClickListener {

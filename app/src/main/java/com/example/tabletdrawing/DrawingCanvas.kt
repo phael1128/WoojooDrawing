@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
@@ -24,7 +23,8 @@ class DrawingCanvas : View {
 
     private var penMode  = 0
     private lateinit var drawingPaint: Paint
-    private lateinit var eraserPaint: Paint
+    private lateinit var areaEraserPaint: Paint
+    private lateinit var strokeEraserPaint: Paint
 
     private var parentBitmap: Bitmap? = null
     private lateinit var parentCanvas: Canvas
@@ -40,10 +40,12 @@ class DrawingCanvas : View {
             style = Paint.Style.STROKE
             strokeWidth = 5f
         }
-        eraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
+        areaEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             strokeWidth = 50f
             color = Color.BLUE
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
+        strokeEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }
         penMode = MODE_PEN
@@ -95,19 +97,7 @@ class DrawingCanvas : View {
 
 
     private fun actionDown(event: MotionEvent) {
-//        when (penMode) {
-//            MODE_PEN -> {
-//                path.moveTo(event.x, event.y)
-//                path.lineTo(event.x, event.y)
-//
-//            }
-//            MODE_ERASER -> {
-//                path.moveTo(event.x, event.y)
-//                path.lineTo(event.x , event.y)
-//            }
-//        }
         path.moveTo(event.x, event.y)
-//        path.lineTo(event.x, event.y)
     }
 
     private fun actionMove(event: MotionEvent) {
@@ -115,26 +105,29 @@ class DrawingCanvas : View {
             MODE_PEN -> {
                 path.lineTo(event.x, event.y)
             }
-            MODE_ERASER -> {
+            MODE_AREA_ERASER -> {
                 //현재 라인 그려짐
-                path.lineTo(event.x, event.y)
+                path.reset()
+                path.addCircle(event.x + 10, event.y + 10, 30f, Path.Direction.CW)
+
+            }
+            MODE_STROKE_ERASER -> {
+
             }
         }
         parentCanvas.drawPath(path, getCurrentPaint())
     }
 
     private fun actionUp(event: MotionEvent) {
-//        when (penMode) {
-//            MODE_PEN -> {
-//                path.reset()
-//            }
-//            MODE_ERASER -> {
-//            }
-//        }
         path = Path()
     }
 
-    private fun getCurrentPaint(): Paint  = if (penMode == MODE_PEN) drawingPaint else eraserPaint
+    private fun getCurrentPaint(): Paint  = when(penMode) {
+        MODE_PEN -> drawingPaint
+        MODE_AREA_ERASER -> areaEraserPaint
+        MODE_STROKE_ERASER -> strokeEraserPaint
+        else -> Paint(Paint.ANTI_ALIAS_FLAG)
+    }
 
 
 
@@ -156,6 +149,7 @@ class DrawingCanvas : View {
 
     companion object {
         const val MODE_PEN = 1
-        const val MODE_ERASER = 2
+        const val MODE_AREA_ERASER = 2
+        const val MODE_STROKE_ERASER = 3
     }
 }
