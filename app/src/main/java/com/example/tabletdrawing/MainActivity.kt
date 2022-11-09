@@ -30,6 +30,10 @@ class MainActivity : AppCompatActivity() {
             canvas.setMode(DrawingCanvas.MODE_STROKE_ERASER)
         }
 
+        binding.clearAll.setOnClickListener {
+            canvas.setMode(DrawingCanvas.MODE_CLEAR_ALL)
+        }
+
         binding.rectangle.setOnClickListener {
             startActivity(Intent(this, RectangleDrawActivity::class.java))
         }

@@ -39,5 +39,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stroke_eraser"/>
 
+    <Button
+        android:id="@+id/clear_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="전체 지우기"
+        app:layout_constraintTop_toBottomOf="@+id/rectangle"
+        app:layout_constraintEnd_toEndOf="@id/rectangle"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
