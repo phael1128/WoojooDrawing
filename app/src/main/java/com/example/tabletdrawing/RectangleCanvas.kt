@@ -8,6 +8,7 @@ import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.PointF
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.createBitmap
@@ -35,6 +36,8 @@ class RectangleCanvas: View {
     private var bitmap: Bitmap? = null
     private val pointF = PointF()
 
+    private var eventTest = ArrayList<PointF>()
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -60,12 +63,14 @@ class RectangleCanvas: View {
                 pointF.x = event.x
                 pointF.y = event.y
                 drawPathArray.add(Pen(x = event.x, y = event.y, moveStatus = statue))
+                eventTest.clear()
+                eventTest.add(PointF(event.x, event.y))
             }
 
             MotionEvent.ACTION_MOVE -> {
                 val state = 1
                 drawPathArray.add(Pen(x = event.x, y = event.y, moveStatus = state))
-
+                eventTest.add(PointF(event.x, event.y))
             }
 
             MotionEvent.ACTION_UP -> {
@@ -74,6 +79,9 @@ class RectangleCanvas: View {
 
                 drawPathArray.add(Pen(x = event.x, y = event.y, moveStatus = statue))
                 drawBitmap(drawPathArray)
+
+                Log.d("eventTest Size", "${eventTest.size}")
+                Log.d("eventTest Size", "${eventTest.size}")
             }
         }
 

@@ -2,8 +2,9 @@ package com.example.tabletdrawing
 
 import android.graphics.Path
 import android.graphics.PointF
+import java.io.Serializable
 
-class SerializablePath: Path() {
+class SerializablePath: Path(), Serializable {
 
     private var pathList = ArrayList<PointF>()
 
