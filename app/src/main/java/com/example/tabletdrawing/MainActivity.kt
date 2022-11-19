@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -25,12 +26,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-    val readStoragePermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (!isGranted) {
-
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,20 +71,18 @@ class MainActivity : AppCompatActivity() {
         val isReadPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         val isWritePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
-        val permissionArray = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-        } else {
-            if (isReadPermission) {
+        if (!isReadPermission) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                goPermissionGrant()
+            } else {
                 requestReadPermission()
             }
         }
 
-        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-        } else {
-            if (isWritePermission) {
+        if (!isWritePermission) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                goPermissionGrant()
+            } else {
                 requestWritePermission()
             }
         }
@@ -101,6 +94,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestWritePermission() {
         requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_PERMISSION_REQUEST_CODE)
+    }
+
+    private fun goPermissionGrant() {
+        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:${packageName}")
+        })
     }
 
     companion object {
