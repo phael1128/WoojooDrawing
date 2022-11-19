@@ -2,8 +2,11 @@ package com.example.tabletdrawing
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
+import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.AttributeSet
 import android.util.Log
@@ -11,6 +14,11 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.createBitmap
+import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DrawingCanvas : AppCompatImageView {
 
@@ -18,6 +26,7 @@ class DrawingCanvas : AppCompatImageView {
     constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet) { init() }
     constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : super(context, attributeSet, defStyleAttr) { init() }
 
+    private var drawingName = StringBuilder()
     private var penMode  = 0
     private lateinit var drawingPaint: Paint
     private lateinit var areaEraserPaint: Paint
@@ -31,8 +40,42 @@ class DrawingCanvas : AppCompatImageView {
     private var strokePathList = ArrayList<SerializablePath>()
     private var strokeEraserList = ArrayList<SerializablePath>()
 
+    // 현재 문제 : 저장하면 빈 비트맵
+    private val savePicture = SaveDrawingPicture { bitmap ->
+        val environmentState = Environment.getExternalStorageState()
+
+        if (Environment.MEDIA_MOUNTED == environmentState) {
+            //갤러리 Path 의 root
+            val rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+            val dirName = "/" + "Drawing"
+            val fileName = System.currentTimeMillis().toString() + ".png"
+            val savePath = File(rootPath + dirName)
+            savePath.mkdirs()
+
+            val file = File(savePath, fileName)
+
+            if (file.exists()) file.delete()
+
+            try {
+                val out = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+
+                out.flush()
+                out.close()
+
+                MediaScannerConnection.scanFile(this.rootView.context, arrayOf(file.absolutePath), null) { _, uri ->
+                    Log.d("saved Complete", "$uri")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+    }
+
 
     // 초기화
+
     private fun init() {
         //ANTI_ALIAS_FLAG : 계단현상 방지
         drawingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -66,6 +109,10 @@ class DrawingCanvas : AppCompatImageView {
         super.onDraw(canvas)
 
         Log.d("yw event status", "drawing")
+
+        if (imageBitmap != null && !imageBitmap?.isRecycled!!) {
+            imageBitmap?.recycle()
+        }
 
         imageBitmap?.let {
             canvas.setBitmap(imageBitmap)
@@ -175,8 +222,15 @@ class DrawingCanvas : AppCompatImageView {
         imageBitmap = Bitmap.createBitmap(
             ImageDecoder.decodeBitmap(source)
         )
-
+        parentCanvas.drawBitmap(imageBitmap!!, this.width.toFloat(), this.height.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
         invalidate()
+    }
+
+
+    fun saveDrawing() {
+        val savedBitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+        parentCanvas.drawBitmap(savedBitmap, this.width.toFloat(), this.height.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
+        savePicture.onSave(savedBitmap)
     }
 
     companion object {
