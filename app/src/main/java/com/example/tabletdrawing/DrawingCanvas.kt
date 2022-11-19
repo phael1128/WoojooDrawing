@@ -3,13 +3,16 @@ package com.example.tabletdrawing
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
+import android.net.Uri
+import android.provider.MediaStore
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.createBitmap
 
-class DrawingCanvas : View {
+class DrawingCanvas : AppCompatImageView {
 
     constructor(context: Context) : super(context) { init() }
     constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet) { init() }
@@ -20,12 +23,14 @@ class DrawingCanvas : View {
     private lateinit var areaEraserPaint: Paint
     private lateinit var strokeEraserPaint: Paint
 
+    private var imageBitmap: Bitmap? = null
     private var parentBitmap: Bitmap? = null
     private lateinit var parentCanvas: Canvas
 
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
     private var strokeEraserList = ArrayList<SerializablePath>()
+
 
     // 초기화
     private fun init() {
@@ -62,6 +67,10 @@ class DrawingCanvas : View {
 
         Log.d("yw event status", "drawing")
 
+        imageBitmap?.let {
+            canvas.setBitmap(imageBitmap)
+        }
+
         when (penMode) {
             MODE_CLEAR_ALL -> {
                 parentCanvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -83,7 +92,7 @@ class DrawingCanvas : View {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
+//        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -158,6 +167,16 @@ class DrawingCanvas : View {
             parentCanvas = Canvas(parentBitmap!!)
             invalidate()
         }
+    }
+
+
+    fun convertUriToBitmap(uri: Uri) {
+        val source = ImageDecoder.createSource(this.rootView.context.contentResolver, uri)
+        imageBitmap = Bitmap.createBitmap(
+            ImageDecoder.decodeBitmap(source)
+        )
+
+        invalidate()
     }
 
     companion object {
