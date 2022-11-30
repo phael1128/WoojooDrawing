@@ -2,21 +2,17 @@ package com.example.tabletdrawing
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.graphics.*
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.createBitmap
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -26,7 +22,6 @@ class DrawingCanvas : AppCompatImageView {
     constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet) { init() }
     constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : super(context, attributeSet, defStyleAttr) { init() }
 
-    private var drawingName = StringBuilder()
     private var penMode  = 0
     private lateinit var drawingPaint: Paint
     private lateinit var areaEraserPaint: Paint
@@ -34,7 +29,9 @@ class DrawingCanvas : AppCompatImageView {
 
     private var imageBitmap: Bitmap? = null
     private var parentBitmap: Bitmap? = null
+    private var savedBitmap: Bitmap? = null
     private lateinit var parentCanvas: Canvas
+    private lateinit var savedCanvas: Canvas
 
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
@@ -99,10 +96,13 @@ class DrawingCanvas : AppCompatImageView {
 
         parentBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         parentCanvas = Canvas(parentBitmap!!)
+
+        savedBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+        savedCanvas = Canvas(savedBitmap!!)
     }
 
 
-    //실질적으로 그리기??
+    //실질적으로 그리기
     @SuppressLint("DrawAllocation")
     //이 canvas 는 항상 초기화된 canvas
     override fun onDraw(canvas: Canvas) {
@@ -139,7 +139,7 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-//        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
+        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -180,14 +180,10 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     private fun actionUp() {
-
         when (penMode) {
             MODE_PEN ->  strokePathList.add(path)
-            MODE_STROKE_ERASER -> {
-
-            }
+            MODE_STROKE_ERASER -> {}
         }
-
         path = SerializablePath()
     }
 
@@ -216,21 +212,22 @@ class DrawingCanvas : AppCompatImageView {
         }
     }
 
-
-    fun convertUriToBitmap(uri: Uri) {
-        val source = ImageDecoder.createSource(this.rootView.context.contentResolver, uri)
-        imageBitmap = Bitmap.createBitmap(
-            ImageDecoder.decodeBitmap(source)
-        )
-        parentCanvas.drawBitmap(imageBitmap!!, this.width.toFloat(), this.height.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
-        invalidate()
+    fun setImageBitmap(uri: Uri) {
+        val bitmap = ImageDecoder.decodeBitmap(
+            ImageDecoder.createSource(this.rootView.context.contentResolver, uri)
+        ) { decoder: ImageDecoder, _: ImageDecoder.ImageInfo?, _: ImageDecoder.Source? ->
+            decoder.isMutableRequired = true
+            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+        }
+        parentCanvas.drawBitmap(bitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
     }
 
-
     fun saveDrawing() {
-        val savedBitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-        parentCanvas.drawBitmap(savedBitmap, this.width.toFloat(), this.height.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
-        savePicture.onSave(savedBitmap)
+        savedBitmap = parentBitmap
+        savedBitmap?.let{ bitmap ->
+            savedCanvas.drawBitmap(bitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+            savePicture.onSave(bitmap)
+        }
     }
 
     companion object {
@@ -240,8 +237,3 @@ class DrawingCanvas : AppCompatImageView {
         const val MODE_CLEAR_ALL = 5
     }
 }
-
-data class Test(
-    var x: Int,
-    var y: Int
-)

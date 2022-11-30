@@ -3,7 +3,6 @@ package com.example.tabletdrawing
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,7 +21,7 @@ class MainActivity : AppCompatActivity() {
             if (result.resultCode == RESULT_OK) {
                 val imageUri = result.data?.data
                 imageUri?.let {
-                    binding.drawingCanvas.setImageURI(it)
+                    binding.drawingCanvas.setImageBitmap(it)
                 }
             }
         }
