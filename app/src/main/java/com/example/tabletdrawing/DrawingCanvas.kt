@@ -66,7 +66,7 @@ class DrawingCanvas : AppCompatImageView {
                     Toast.makeText(this.rootView.context, "저장완료", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("Canvas Save Fail", "${e.message}")
             }
         }
 
@@ -93,6 +93,7 @@ class DrawingCanvas : AppCompatImageView {
         penMode = MODE_PEN
 
         this.setBackgroundColor(Color.rgb(255, 255, 255))
+
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -217,13 +218,14 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     fun setImageBitmap(uri: Uri) {
-        val bitmap = ImageDecoder.decodeBitmap(
+        val uriBitmap = ImageDecoder.decodeBitmap(
             ImageDecoder.createSource(this.rootView.context.contentResolver, uri)
         ) { decoder: ImageDecoder, _: ImageDecoder.ImageInfo?, _: ImageDecoder.Source? ->
             decoder.isMutableRequired = true
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
         }
-        parentCanvas.drawBitmap(bitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+        val convertBitmap = Bitmap.createScaledBitmap(uriBitmap, 600, 600, false)
+        parentCanvas.drawBitmap(convertBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
     }
 
     fun saveDrawing() {

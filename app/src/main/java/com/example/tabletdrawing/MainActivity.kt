@@ -20,8 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawingListAdapter: DrawingListAdapter
     private lateinit var drawingCanvas: DrawingCanvas
 
-    private val activityLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val activityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val imageUri = result.data?.data
                 imageUri?.let {
@@ -36,8 +35,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val newDrawing = DrawingCanvas(this)
-        drawingList.add(newDrawing)
+        drawingCanvas = DrawingCanvas(this)
+        drawingList.add(drawingCanvas)
+        binding.layoutDrawingCanvas.addView(drawingList[0])
+
+
         drawingListAdapter = DrawingListAdapter(drawingList) { position ->
             // 현재 문제점,,,
             // ViewGroup 에 replace 하는게 있는줄 알았는데 무조건 removeAll 를 해줘야 함
@@ -51,8 +53,6 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerViewDrawingList.adapter = drawingListAdapter
         drawingListAdapter.notifyDataSetChanged()
 
-        drawingCanvas = DrawingCanvas(this)
-        binding.layoutDrawingCanvas.addView(drawingList[0])
 
         binding.pen.setOnClickListener {
             drawingCanvas.setMode(DrawingCanvas.MODE_PEN)
