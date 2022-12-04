@@ -106,8 +106,6 @@ class DrawingCanvas : AppCompatImageView {
     }
 
 
-
-
     //실질적으로 그리기
     @SuppressLint("DrawAllocation")
     //이 canvas 는 항상 초기화된 canvas

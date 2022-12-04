@@ -1,13 +1,14 @@
 package com.example.tabletdrawing
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tabletdrawing.databinding.ItemDrawingBinding
 
-class DrawingListAdapter(private val drawingList: ArrayList<DrawingCanvas>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
+class DrawingListAdapter(
+    private val drawingList: ArrayList<DrawingCanvas>,
+    private val callback: ChangeDrawingCanvas
+    ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = ItemDrawingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -16,7 +17,7 @@ class DrawingListAdapter(private val drawingList: ArrayList<DrawingCanvas>): Rec
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 //        val item = drawingList[position]
-        (holder as? DrawingListViewHolder)?.onBind(false)
+        (holder as? DrawingListViewHolder)?.onBind(false, position,  callback)
     }
 
     override fun getItemCount(): Int {
@@ -28,7 +29,6 @@ class DrawingListAdapter(private val drawingList: ArrayList<DrawingCanvas>): Rec
         notifyDataSetChanged()
     }
 
-    fun printCurrentItemSize() {
-        Log.d("Current Drawing List Size", "${drawingList.size}")
-    }
+    fun getDrawingCanvasList() = drawingList
+
 }

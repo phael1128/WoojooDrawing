@@ -18,13 +18,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val drawingList = ArrayList<DrawingCanvas>()
     private lateinit var drawingListAdapter: DrawingListAdapter
+    private lateinit var drawingCanvas: DrawingCanvas
 
     private val activityLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val imageUri = result.data?.data
                 imageUri?.let {
-                    binding.drawingCanvas.setImageBitmap(it)
+                    drawingCanvas.setImageBitmap(it)
                 }
             }
         }
@@ -35,20 +36,38 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val newDrawing = DrawingCanvas(this)
+        drawingList.add(newDrawing)
+        drawingListAdapter = DrawingListAdapter(drawingList) { position ->
+            // 현재 문제점,,,
+            // ViewGroup 에 replace 하는게 있는줄 알았는데 무조건 removeAll 를 해줘야 함
+            // 그래서 View를 변경해도 계속 새로운 Canvas가 호출 됨,,
+            // 그래서 ViewPager를 만들어서 ViewGroup에 addView를 하는게 아니라
+            // Fragment를 바꿔주는 식으로 해주면 slide 도 할 수있고 생명주기도 보존 가능하니 1석 2조 일듯,,!
+            binding.layoutDrawingCanvas.removeAllViews()
+            binding.layoutDrawingCanvas.addView(drawingListAdapter.getDrawingCanvasList()[position])
+        }
+
+        binding.recyclerViewDrawingList.adapter = drawingListAdapter
+        drawingListAdapter.notifyDataSetChanged()
+
+        drawingCanvas = DrawingCanvas(this)
+        binding.layoutDrawingCanvas.addView(drawingList[0])
+
         binding.pen.setOnClickListener {
-            binding.drawingCanvas.setMode(DrawingCanvas.MODE_PEN)
+            drawingCanvas.setMode(DrawingCanvas.MODE_PEN)
         }
 
         binding.areaEraser.setOnClickListener {
-            binding.drawingCanvas.setMode(DrawingCanvas.MODE_AREA_ERASER)
+            drawingCanvas.setMode(DrawingCanvas.MODE_AREA_ERASER)
         }
 
         binding.strokeEraser.setOnClickListener {
-            binding.drawingCanvas.setMode(DrawingCanvas.MODE_STROKE_ERASER)
+            drawingCanvas.setMode(DrawingCanvas.MODE_STROKE_ERASER)
         }
 
         binding.clearAll.setOnClickListener {
-            binding.drawingCanvas.setMode(DrawingCanvas.MODE_CLEAR_ALL)
+            drawingCanvas.setMode(DrawingCanvas.MODE_CLEAR_ALL)
         }
 
         binding.rectangle.setOnClickListener {
@@ -62,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.saveBitmap.setOnClickListener {
-            binding.drawingCanvas.saveDrawing()
+            drawingCanvas.saveDrawing()
         }
 
         binding.ivAdd.setOnClickListener {
@@ -70,13 +89,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         requestPermission()
-
-        val newDrawing = DrawingCanvas(this)
-        drawingList.add(newDrawing)
-        drawingListAdapter = DrawingListAdapter(drawingList)
-        binding.recyclerViewDrawingList.adapter = drawingListAdapter
-        drawingListAdapter.notifyDataSetChanged()
-        drawingListAdapter.printCurrentItemSize()
     }
 
     private fun addCanvas() {
