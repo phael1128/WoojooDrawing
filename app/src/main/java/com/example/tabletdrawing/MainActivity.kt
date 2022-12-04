@@ -2,6 +2,7 @@ package com.example.tabletdrawing
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,8 @@ import com.example.tabletdrawing.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val drawingList = ArrayList<DrawingCanvas>()
+    private lateinit var drawingListAdapter: DrawingListAdapter
 
     private val activityLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -28,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -61,9 +65,23 @@ class MainActivity : AppCompatActivity() {
             binding.drawingCanvas.saveDrawing()
         }
 
+        binding.ivAdd.setOnClickListener {
+            addCanvas()
+        }
+
         requestPermission()
 
-        Log.d("containerSize", "create ${binding.container.width} & ${binding.container.height}")
+        val newDrawing = DrawingCanvas(this)
+        drawingList.add(newDrawing)
+        drawingListAdapter = DrawingListAdapter(drawingList)
+        binding.recyclerViewDrawingList.adapter = drawingListAdapter
+        drawingListAdapter.notifyDataSetChanged()
+        drawingListAdapter.printCurrentItemSize()
+    }
+
+    private fun addCanvas() {
+        val newDrawing = DrawingCanvas(this)
+        drawingListAdapter.addDrawingList(newDrawing)
     }
 
     private fun requestPermission() {

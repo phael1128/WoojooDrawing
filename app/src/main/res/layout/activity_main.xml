@@ -7,70 +7,118 @@
     android:id="@+id/container"
     tools:context=".MainActivity">
 
-    <com.example.tabletdrawing.DrawingCanvas
-        android:id="@+id/drawing_canvas"
+    <LinearLayout
+        android:id="@+id/layout_drawingOptions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/pen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="그리기" />
+
+        <TextView
+            android:id="@+id/area_eraser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="영역 지우개" />
+
+        <TextView
+            android:id="@+id/stroke_eraser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="획 지우개"
+            />
+
+        <TextView
+            android:id="@+id/rectangle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="사각형 그리기" />
+
+        <TextView
+            android:id="@+id/clear_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="전체 지우기" />
+
+        <TextView
+            android:id="@+id/call_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="이미지 가져오기" />
+
+        <TextView
+            android:id="@+id/save_Bitmap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="저장하기" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_drawingList"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:background="#808080"
+        app:layout_constraintTop_toBottomOf="@+id/layout_drawingOptions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_DrawingList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/iv_add"
+            tools:listitem="@layout/item_drawing"
+             />
+
+        <ImageView
+            android:id="@+id/iv_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_baseline_add_24"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/recyclerView_DrawingList"
+            app:layout_constraintStart_toStartOf="@+id/recyclerView_DrawingList"
+            app:layout_constraintEnd_toEndOf="@+id/recyclerView_DrawingList"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <com.example.tabletdrawing.DrawingCanvas
+        android:id="@+id/drawing_canvas"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/layout_drawingOptions"
+        app:layout_constraintStart_toEndOf="@+id/layout_drawingList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <Button
-        android:id="@+id/pen"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="그리기"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <Button
-        android:id="@+id/area_eraser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="영역 지우개"
-        app:layout_constraintTop_toBottomOf="@+id/pen"
-        app:layout_constraintEnd_toEndOf="@+id/pen"/>
-
-    <Button
-        android:id="@+id/stroke_eraser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="획 지우개"
-        app:layout_constraintTop_toBottomOf="@+id/area_eraser"
-        app:layout_constraintEnd_toEndOf="@id/area_eraser"/>
-
-    <Button
-        android:id="@+id/rectangle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="사각형 그리기"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stroke_eraser"/>
-
-    <Button
-        android:id="@+id/clear_all"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="전체 지우기"
-        app:layout_constraintTop_toBottomOf="@+id/rectangle"
-        app:layout_constraintEnd_toEndOf="@id/rectangle"/>
-
-    <Button
-        android:id="@+id/call_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="이미지 가져오기"
-        app:layout_constraintTop_toBottomOf="@+id/clear_all"
-        app:layout_constraintEnd_toEndOf="@+id/clear_all"/>
-
-    <Button
-        android:id="@+id/save_Bitmap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="저장하기"
-        app:layout_constraintTop_toBottomOf="@id/call_image"
-        app:layout_constraintEnd_toEndOf="@id/call_image"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

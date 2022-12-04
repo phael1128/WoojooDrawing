@@ -9,6 +9,7 @@ import android.os.Environment
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.createBitmap
 import java.io.File
@@ -62,6 +63,7 @@ class DrawingCanvas : AppCompatImageView {
 
                 MediaScannerConnection.scanFile(this.rootView.context, arrayOf(file.absolutePath), null) { _, uri ->
                     Log.d("saved Complete", "$uri")
+                    Toast.makeText(this.rootView.context, "저장완료", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -89,6 +91,8 @@ class DrawingCanvas : AppCompatImageView {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }
         penMode = MODE_PEN
+
+        this.setBackgroundColor(Color.rgb(255, 255, 255))
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -100,6 +104,8 @@ class DrawingCanvas : AppCompatImageView {
         savedBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         savedCanvas = Canvas(savedBitmap!!)
     }
+
+
 
 
     //실질적으로 그리기
@@ -139,7 +145,7 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
+//        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
