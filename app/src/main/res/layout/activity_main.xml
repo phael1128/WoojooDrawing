@@ -34,14 +34,14 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <ImageView
-                    android:id="@+id/pen"
+                    android:id="@+id/imageView_pen"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:gravity="center"
                     android:background="@drawable/iv_pen"/>
 
                 <ImageView
-                    android:id="@+id/area_eraser"
+                    android:id="@+id/imageView_area_eraser"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:gravity="center"
@@ -49,7 +49,7 @@
                     android:background="@drawable/iv_eraser"/>
 
                 <ImageView
-                    android:id="@+id/clear_all"
+                    android:id="@+id/imageView_clear_all"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:gravity="center"
@@ -57,7 +57,7 @@
                     android:background="@drawable/iv_clear"/>
 
                 <TextView
-                    android:id="@+id/rectangle"
+                    android:id="@+id/imageView_rectangle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="12dp"
@@ -112,12 +112,12 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/iv_add"
+            app:layout_constraintBottom_toTopOf="@+id/imageView_add"
             tools:listitem="@layout/item_drawing"
              />
 
         <ImageView
-            android:id="@+id/iv_add"
+            android:id="@+id/imageView_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

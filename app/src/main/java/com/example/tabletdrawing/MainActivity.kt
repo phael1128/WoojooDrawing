@@ -63,19 +63,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        binding.pen.setOnClickListener {
+        binding.imageViewPen.setOnClickListener {
             getCurrentFragment()?.setMode(DrawingMode.PenMode)
         }
 
-        binding.areaEraser.setOnClickListener {
+        binding.imageViewAreaEraser.setOnClickListener {
             getCurrentFragment()?.setMode(DrawingMode.EraserMode)
         }
 
-        binding.clearAll.setOnClickListener {
+        binding.imageViewClearAll.setOnClickListener {
             getCurrentFragment()?.setMode(DrawingMode.ClearAllMode)
         }
 
-        binding.rectangle.setOnClickListener {
+        binding.imageViewRectangle.setOnClickListener {
             startActivity(Intent(this, RectangleDrawActivity::class.java))
         }
 
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             getCurrentFragment()?.saveCurrentDrawing()
         }
 
-        binding.ivAdd.setOnClickListener {
+        binding.imageViewAdd.setOnClickListener {
             addCanvas()
         }
     }
