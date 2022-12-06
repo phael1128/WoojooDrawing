@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
                     findFragment?.let {
                         it.setBitmap(imageUri)
                     } ?: run {
-                        Log.d("NotFounFragment", "${binding.viewPagerDrawing.currentItem}")
+                        Log.d("NotFoundFragment", "${binding.viewPagerDrawing.currentItem}")
                     }
                 }
             }
