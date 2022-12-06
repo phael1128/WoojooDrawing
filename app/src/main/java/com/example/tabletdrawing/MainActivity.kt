@@ -11,6 +11,9 @@ import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.example.tabletdrawing.adapters.CanvasViewPagerAdapter
+import com.example.tabletdrawing.adapters.DrawingListAdapter
+import com.example.tabletdrawing.customView.DrawingCanvas
 import com.example.tabletdrawing.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -19,15 +22,24 @@ class MainActivity : AppCompatActivity() {
     private val drawingList = ArrayList<DrawingCanvas>()
     private lateinit var drawingListAdapter: DrawingListAdapter
     private lateinit var drawingCanvas: DrawingCanvas
+    private lateinit var viewPagerAdapter: CanvasViewPagerAdapter
+    private var currentPosition = 0
 
     private val activityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val imageUri = result.data?.data
-                imageUri?.let {
-                    drawingCanvas.setImageBitmap(it)
+                imageUri?.let { imageUri ->
+                    //findFragment 함수로 하나 만들기
+                    val findFragment = getCurrentFragment()
+                    findFragment?.let {
+                        it.setBitmap(imageUri)
+                    } ?: run {
+                        Log.d("NotFountFragment", "${binding.viewPagerDrawing.currentItem}")
+                    }
                 }
             }
         }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,64 +48,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         drawingCanvas = DrawingCanvas(this)
-        drawingList.add(drawingCanvas)
-        binding.layoutDrawingCanvas.addView(drawingList[0])
+        viewPagerAdapter = CanvasViewPagerAdapter(this, drawingList)
+        binding.viewPagerDrawing.adapter = viewPagerAdapter
 
+        binding.viewPagerDrawing.isUserInputEnabled = false
 
         drawingListAdapter = DrawingListAdapter(drawingList) { position ->
-            // 현재 문제점,,,
-            // ViewGroup 에 replace 하는게 있는줄 알았는데 무조건 removeAll 를 해줘야 함
-            // 그래서 View를 변경해도 계속 새로운 Canvas가 호출 됨,,
-            // 그래서 ViewPager를 만들어서 ViewGroup에 addView를 하는게 아니라
-            // Fragment를 바꿔주는 식으로 해주면 slide 도 할 수있고 생명주기도 보존 가능하니 1석 2조 일듯,,!
-            binding.layoutDrawingCanvas.removeAllViews()
-            binding.layoutDrawingCanvas.addView(drawingListAdapter.getDrawingCanvasList()[position])
+            binding.viewPagerDrawing.currentItem = position
+            currentPosition = position
+            Log.d("currentPosition", "${currentPosition}")
         }
 
         binding.recyclerViewDrawingList.adapter = drawingListAdapter
         drawingListAdapter.notifyDataSetChanged()
 
+        addCanvas()
 
-        binding.pen.setOnClickListener {
-            drawingCanvas.setMode(DrawingCanvas.MODE_PEN)
-        }
+        binding.viewPagerDrawing.currentItem = 0
+        currentPosition = 0
 
-        binding.areaEraser.setOnClickListener {
-            drawingCanvas.setMode(DrawingCanvas.MODE_AREA_ERASER)
-        }
-
-        binding.strokeEraser.setOnClickListener {
-            drawingCanvas.setMode(DrawingCanvas.MODE_STROKE_ERASER)
-        }
-
-        binding.clearAll.setOnClickListener {
-            drawingCanvas.setMode(DrawingCanvas.MODE_CLEAR_ALL)
-        }
-
-        binding.rectangle.setOnClickListener {
-            startActivity(Intent(this, RectangleDrawActivity::class.java))
-        }
-
-        binding.callImage.setOnClickListener {
-            activityLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
-            })
-        }
-
-        binding.saveBitmap.setOnClickListener {
-            drawingCanvas.saveDrawing()
-        }
-
-        binding.ivAdd.setOnClickListener {
-            addCanvas()
-        }
-
+        setDrawingListener()
         requestPermission()
     }
 
     private fun addCanvas() {
         val newDrawing = DrawingCanvas(this)
-        drawingListAdapter.addDrawingList(newDrawing)
+        drawingList.add(newDrawing)
+        drawingListAdapter.notifyDataSetChanged()
+        viewPagerAdapter.notifyDataSetChanged()
     }
 
     private fun requestPermission() {
@@ -129,6 +111,42 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.parse("package:${packageName}")
         })
+    }
+
+    private fun setDrawingListener() {
+        binding.pen.setOnClickListener {
+            getCurrentFragment()?.setMode(DrawingMode.PenMode)
+        }
+
+        binding.areaEraser.setOnClickListener {
+            getCurrentFragment()?.setMode(DrawingMode.EraserMode)
+        }
+
+        binding.clearAll.setOnClickListener {
+            getCurrentFragment()?.setMode(DrawingMode.ClearAllMode)
+        }
+
+        binding.rectangle.setOnClickListener {
+            startActivity(Intent(this, RectangleDrawActivity::class.java))
+        }
+
+        binding.imageViewGetImage.setOnClickListener {
+            activityLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "image/*"
+            })
+        }
+
+        binding.imageViewSaveBitmap.setOnClickListener {
+            getCurrentFragment()?.saveCurrentDrawing()
+        }
+
+        binding.ivAdd.setOnClickListener {
+            addCanvas()
+        }
+    }
+
+    private fun getCurrentFragment(): CanvasFragment? {
+        return supportFragmentManager.findFragmentByTag("f" + binding.viewPagerDrawing.currentItem) as? CanvasFragment
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package com.example.tabletdrawing
+package com.example.tabletdrawing.interfaces
 
 fun interface ChangeDrawingCanvas {
 

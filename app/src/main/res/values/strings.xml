@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TabletDrawing</string>
+    <string name="textView_currentPage">번 페이지</string>
 </resources>

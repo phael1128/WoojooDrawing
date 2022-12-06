@@ -1,20 +1,16 @@
-package com.example.tabletdrawing
+package com.example.tabletdrawing.customView
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Environment
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.createBitmap
-import java.io.File
-import java.io.FileOutputStream
-import java.util.*
+import com.example.tabletdrawing.SerializablePath
+import com.example.tabletdrawing.interfaces.SaveDrawingPicture
 import kotlin.collections.ArrayList
 
 class DrawingCanvas : AppCompatImageView {
@@ -28,50 +24,16 @@ class DrawingCanvas : AppCompatImageView {
     private lateinit var areaEraserPaint: Paint
     private lateinit var strokeEraserPaint: Paint
 
-    private var imageBitmap: Bitmap? = null
+    private var currentImageBitmap: Bitmap? = null
     private var parentBitmap: Bitmap? = null
     private var savedBitmap: Bitmap? = null
-    private lateinit var parentCanvas: Canvas
+    private var parentCanvas: Canvas? = null
     private lateinit var savedCanvas: Canvas
 
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
     private var strokeEraserList = ArrayList<SerializablePath>()
-
-    // 현재 문제 : 저장하면 빈 비트맵
-    private val savePicture = SaveDrawingPicture { bitmap ->
-        val environmentState = Environment.getExternalStorageState()
-
-        if (Environment.MEDIA_MOUNTED == environmentState) {
-            //갤러리 Path 의 root
-            val rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
-            val dirName = "/" + "Drawing"
-            val fileName = System.currentTimeMillis().toString() + ".png"
-            val savePath = File(rootPath + dirName)
-            savePath.mkdirs()
-
-            val file = File(savePath, fileName)
-
-            if (file.exists()) file.delete()
-
-            try {
-                val out = FileOutputStream(file)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-
-                out.flush()
-                out.close()
-
-                MediaScannerConnection.scanFile(this.rootView.context, arrayOf(file.absolutePath), null) { _, uri ->
-                    Log.d("saved Complete", "$uri")
-                    Toast.makeText(this.rootView.context, "저장완료", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("Canvas Save Fail", "${e.message}")
-            }
-        }
-
-    }
-
+    private lateinit var savePicture: SaveDrawingPicture
 
     // 초기화
 
@@ -106,7 +68,6 @@ class DrawingCanvas : AppCompatImageView {
         savedCanvas = Canvas(savedBitmap!!)
     }
 
-
     //실질적으로 그리기
     @SuppressLint("DrawAllocation")
     //이 canvas 는 항상 초기화된 canvas
@@ -115,22 +76,22 @@ class DrawingCanvas : AppCompatImageView {
 
         Log.d("yw event status", "drawing")
 
-        if (imageBitmap != null && !imageBitmap?.isRecycled!!) {
-            imageBitmap?.recycle()
+        if (currentImageBitmap != null && !currentImageBitmap?.isRecycled!!) {
+            currentImageBitmap?.recycle()
         }
 
-        imageBitmap?.let {
-            canvas.setBitmap(imageBitmap)
+        currentImageBitmap?.let {
+            canvas.setBitmap(currentImageBitmap)
         }
 
         when (penMode) {
             MODE_CLEAR_ALL -> {
-                parentCanvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                parentCanvas?.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = Color.TRANSPARENT
                 })
             }
             MODE_STROKE_ERASER -> {
-                parentCanvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+                parentCanvas?.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
                 canvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
             }
             else -> {
@@ -144,7 +105,7 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-//        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
+        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -161,7 +122,6 @@ class DrawingCanvas : AppCompatImageView {
         return true
     }
 
-
     private fun actionDown(event: MotionEvent) {
         path.moveTo(event.x, event.y)
     }
@@ -170,12 +130,12 @@ class DrawingCanvas : AppCompatImageView {
         when (penMode) {
             MODE_PEN -> {
                 path.lineTo(event.x, event.y)
-                parentCanvas.drawPath(path, getCurrentPaint())
+                parentCanvas?.drawPath(path, getCurrentPaint())
             }
             MODE_AREA_ERASER -> {
                 path.reset()
                 path.addCircle(event.x + 10, event.y + 10, 30f, Path.Direction.CW)
-                parentCanvas.drawPath(path, getCurrentPaint())
+                parentCanvas?.drawPath(path, getCurrentPaint())
             }
             MODE_STROKE_ERASER -> {
                 path.lineTo(event.x, event.y)
@@ -225,7 +185,13 @@ class DrawingCanvas : AppCompatImageView {
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
         }
         val convertBitmap = Bitmap.createScaledBitmap(uriBitmap, 600, 600, false)
-        parentCanvas.drawBitmap(convertBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+        parentCanvas?.let {
+            it.drawBitmap(convertBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+        } ?: run {
+            parentCanvas = Canvas(parentBitmap!!)
+            parentCanvas!!.drawBitmap(convertBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+        }
+
     }
 
     fun saveDrawing() {
@@ -234,6 +200,10 @@ class DrawingCanvas : AppCompatImageView {
             savedCanvas.drawBitmap(bitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
             savePicture.onSave(bitmap)
         }
+    }
+
+    fun setSavePictureListener(listener: SaveDrawingPicture) {
+        savePicture = listener
     }
 
     companion object {
