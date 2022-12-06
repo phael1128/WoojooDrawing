@@ -79,6 +79,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:gravity="center"
+                android:layout_marginRight="12dp"
                 android:src="@drawable/iv_get_image"/>
 
             <ImageView
@@ -86,11 +87,8 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:gravity="center"
-                android:layout_marginLeft="12dp"
                 android:background="@drawable/iv_download"/>
         </LinearLayout>
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
