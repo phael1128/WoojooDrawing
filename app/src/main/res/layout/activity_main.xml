@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/layout_drawingControl">
 
             <LinearLayout
                 android:id="@+id/layout_drawingOptions"
@@ -66,6 +67,7 @@
         </ScrollView>
 
         <LinearLayout
+            android:id="@+id/layout_drawingControl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
