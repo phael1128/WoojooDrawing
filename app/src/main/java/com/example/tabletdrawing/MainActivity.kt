@@ -52,10 +52,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.recyclerViewDrawingList.adapter = drawingListAdapter
-        drawingListAdapter.notifyDataSetChanged()
 
         addCanvas()
-
         binding.viewPagerDrawing.currentItem = 0
 
         initView()
