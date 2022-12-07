@@ -9,8 +9,9 @@ import android.util.Log
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.createBitmap
+import com.example.tabletdrawing.R
 import com.example.tabletdrawing.SerializablePath
-import com.example.tabletdrawing.interfaces.SaveDrawingPicture
+import com.example.tabletdrawing.interfaces.SaveDrawingPictureListener
 import kotlin.collections.ArrayList
 
 class DrawingCanvas : AppCompatImageView {
@@ -33,7 +34,7 @@ class DrawingCanvas : AppCompatImageView {
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
     private var strokeEraserList = ArrayList<SerializablePath>()
-    private lateinit var savePicture: SaveDrawingPicture
+    private lateinit var onSaveDrawingPictureListenerListener: SaveDrawingPictureListener
 
     // 초기화
 
@@ -54,8 +55,7 @@ class DrawingCanvas : AppCompatImageView {
         }
         penMode = MODE_PEN
 
-        this.setBackgroundColor(Color.rgb(255, 255, 255))
-
+        this.setBackgroundColor(this.rootView.context.getColor(R.color.white))
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -70,11 +70,9 @@ class DrawingCanvas : AppCompatImageView {
 
     //실질적으로 그리기
     @SuppressLint("DrawAllocation")
-    //이 canvas 는 항상 초기화된 canvas
+    //이 canvas 는 항상 초기화 된 canvas
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        Log.d("yw event status", "drawing")
 
         if (currentImageBitmap != null && !currentImageBitmap?.isRecycled!!) {
             currentImageBitmap?.recycle()
@@ -108,16 +106,11 @@ class DrawingCanvas : AppCompatImageView {
         if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                actionDown(event)
-            }
-            MotionEvent.ACTION_MOVE -> {
-                actionMove(event)
-            }
-            MotionEvent.ACTION_UP -> {
-                actionUp()
-            }
+            MotionEvent.ACTION_DOWN -> actionDown(event)
+            MotionEvent.ACTION_MOVE -> actionMove(event)
+            MotionEvent.ACTION_UP -> actionUp()
         }
+
         invalidate()
         return true
     }
@@ -196,14 +189,14 @@ class DrawingCanvas : AppCompatImageView {
 
     fun saveDrawing() {
         savedBitmap = parentBitmap
-        savedBitmap?.let{ bitmap ->
+        savedBitmap?.let { bitmap ->
             savedCanvas.drawBitmap(bitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
-            savePicture.onSave(bitmap)
+            onSaveDrawingPictureListenerListener.onSave(bitmap)
         }
     }
 
-    fun setSavePictureListener(listener: SaveDrawingPicture) {
-        savePicture = listener
+    fun setSavePictureListener(listener: SaveDrawingPictureListener) {
+        onSaveDrawingPictureListenerListener = listener
     }
 
     companion object {

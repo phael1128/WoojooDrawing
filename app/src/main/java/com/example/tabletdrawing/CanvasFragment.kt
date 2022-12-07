@@ -10,12 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.example.tabletdrawing.customView.DrawingCanvas
 import com.example.tabletdrawing.databinding.FragmentCanvasBinding
-import com.example.tabletdrawing.interfaces.SaveDrawingPicture
 import java.io.File
 import java.io.FileOutputStream
 
