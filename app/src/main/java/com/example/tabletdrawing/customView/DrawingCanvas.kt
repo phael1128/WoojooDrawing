@@ -62,9 +62,7 @@ class DrawingCanvas : AppCompatImageView {
         super.onLayout(changed, left, top, right, bottom)
 
         parentBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-        parentCanvas = Canvas(parentBitmap!!).apply {
-            drawColor(Color.WHITE)
-        }
+        parentCanvas = getParentCanvas(parentBitmap!!)
 
         savedBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         savedCanvas = Canvas(savedBitmap!!)
@@ -167,7 +165,7 @@ class DrawingCanvas : AppCompatImageView {
         if (parentBitmap != null) {
             parentBitmap?.recycle()
             parentBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
-            parentCanvas = Canvas(parentBitmap!!)
+            parentCanvas = getParentCanvas(parentBitmap!!)
             invalidate()
         }
     }
@@ -199,6 +197,10 @@ class DrawingCanvas : AppCompatImageView {
 
     fun setSavePictureListener(listener: SaveDrawingPictureListener) {
         onSaveDrawingPictureListenerListener = listener
+    }
+
+    private fun getParentCanvas(bitmap: Bitmap) = Canvas(bitmap).apply {
+        drawColor(Color.WHITE)
     }
 
     companion object {
