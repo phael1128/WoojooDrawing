@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.tabletdrawing.customView.DrawingCanvas
 import com.example.tabletdrawing.databinding.FragmentCanvasBinding
+import com.example.tabletdrawing.utils.setSaveDrawingPictureListener
 import java.io.File
 import java.io.FileOutputStream
 
@@ -55,33 +56,7 @@ class CanvasFragment: Fragment() {
 
     private fun setSavePictureListener() {
         binding.layoutDrawing.setSavePictureListener { bitmap ->
-            val environmentState = Environment.getExternalStorageState()
-
-            if (Environment.MEDIA_MOUNTED == environmentState) {
-                val rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
-                val dirName = "/Drawing"
-                val fileName = "${System.currentTimeMillis()}.png"
-                val savePath = File(rootPath + dirName)
-                savePath.mkdirs()
-
-                val file = File(savePath, fileName)
-                if (file.exists()) file.delete()
-
-                try {
-                    val out = FileOutputStream(file)
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-
-                    out.flush()
-                    out.close()
-
-                    MediaScannerConnection.scanFile(requireContext(), arrayOf(file.absolutePath), null) { _, uri ->
-                        Log.d("saved Complete", "$uri")
-                        Toast.makeText(requireContext(), "저장완료", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: java.lang.Exception) {
-                    Log.e("Canvas Save Fail", "${e.message}")
-                }
-            }
+            setSaveDrawingPictureListener(bitmap)
         }
     }
 
