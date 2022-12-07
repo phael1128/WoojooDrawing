@@ -10,7 +10,7 @@
     android:background="#808080"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.example.tabletdrawing.customView.DrawingCanvas
+    <com.woojoo.tabletdrawing.customView.DrawingCanvas
         android:id="@+id/layout_drawing"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
