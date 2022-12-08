@@ -79,6 +79,8 @@ class DrawingCanvas : AppCompatImageView {
 
         savedBitmap = createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
         savedCanvas = Canvas(savedBitmap!!)
+
+
     }
 
     //실질적으로 그리기
@@ -120,7 +122,7 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
+//        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> actionDown(event)
@@ -135,6 +137,7 @@ class DrawingCanvas : AppCompatImageView {
     private fun actionDown(event: MotionEvent) {
         if (penMode == MODE_CROP) {
             cropStartPoint = PointF()
+            cropLastPoint = PointF()
             cropStartPoint?.set(event.x, event.y)
         } else {
             path.moveTo(event.x, event.y)
@@ -153,7 +156,6 @@ class DrawingCanvas : AppCompatImageView {
                 parentCanvas?.drawPath(path, getCurrentPaint())
             }
             MODE_CROP -> {
-                cropLastPoint = PointF()
                 cropLastPoint?.set(event.x, event.y)
             }
         }
@@ -162,11 +164,7 @@ class DrawingCanvas : AppCompatImageView {
     private fun actionUp() {
         when (penMode) {
             MODE_PEN ->  strokePathList.add(path)
-            MODE_CROP -> {
-//                cropStartPoint = null
-//                cropLastPoint = null
-                saveCropBitmap()
-            }
+            MODE_CROP -> saveCropBitmap()
         }
         path = SerializablePath()
     }
@@ -175,7 +173,6 @@ class DrawingCanvas : AppCompatImageView {
         MODE_PEN -> drawingPaint
         MODE_AREA_ERASER -> areaEraserPaint
         MODE_CROP -> cropPaint
-//        MODE_STROKE_ERASER -> strokeEraserPaint
         else -> drawingPaint
     }
 
@@ -221,16 +218,19 @@ class DrawingCanvas : AppCompatImageView {
             onSaveDrawingPictureListenerListener.onSave(bitmap)
         }
     }
-
     private fun saveCropBitmap() {
         //1. crop할 비트맵 사이즈 지정
-        val cropWidthSize = (cropLastPoint?.x!! - cropStartPoint?.x!!).toInt()
-        val cropHeightSize = (cropLastPoint?.y!! - cropStartPoint?.y!!).toInt()
-        cropBitmap = createBitmap(cropWidthSize, cropHeightSize, Bitmap.Config.ARGB_8888)
-//        cropCanvas = Canvas(parentBitmap!!)
-//        cropCanvas?.drawBitmap(cropBitmap!!,cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
-        parentCanvas?.drawBitmap(cropBitmap!!, cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
-        onSaveDrawingPictureListenerListener.onSave(cropBitmap!!)
+        val cropWidthSize = cropLastPoint?.x!!.coerceAtLeast(cropStartPoint?.x!!) - cropLastPoint?.x!!.coerceAtMost(cropStartPoint?.x!!)
+        val cropHeightSize = cropLastPoint?.y!!.coerceAtLeast(cropStartPoint?.y!!) - cropLastPoint?.y!!.coerceAtMost(cropStartPoint?.y!!)
+        cropBitmap = Bitmap.createBitmap(cropWidthSize.toInt(), cropHeightSize.toInt(), Bitmap.Config.ARGB_8888)
+        cropBitmap?.let {
+            parentCanvas?.drawBitmap(it, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
+                color = Color.TRANSPARENT
+            })
+            onSaveDrawingPictureListenerListener.onSave(it)
+        }
+
     }
 
     fun setSavePictureListener(listener: SaveDrawingPictureListener) {
