@@ -25,7 +25,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name="com.woojoo.tabletdrawing.MainActivity"
+            android:name="com.woojoo.tabletdrawing.activitys.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>

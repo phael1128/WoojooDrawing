@@ -3,7 +3,7 @@ package com.woojoo.tabletdrawing.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.woojoo.tabletdrawing.fragments.CanvasFragment
+import com.woojoo.tabletdrawing.CanvasFragment
 import com.woojoo.tabletdrawing.customView.DrawingCanvas
 
 class CanvasViewPagerAdapter(

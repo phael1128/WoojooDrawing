@@ -24,16 +24,23 @@ class DrawingCanvas : AppCompatImageView {
     private lateinit var drawingPaint: Paint
     private lateinit var areaEraserPaint: Paint
     private lateinit var strokeEraserPaint: Paint
+    private lateinit var cropPaint: Paint
 
+    private var cropStartPoint: PointF? = null
+    private var cropLastPoint: PointF? = null
     private var currentImageBitmap: Bitmap? = null
     private var parentBitmap: Bitmap? = null
     private var savedBitmap: Bitmap? = null
     private var parentCanvas: Canvas? = null
     private lateinit var savedCanvas: Canvas
 
+    private var cropBitmap: Bitmap? = null
+    private var cropCanvas: Canvas? = null
+
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
     private var strokeEraserList = ArrayList<SerializablePath>()
+
     private lateinit var onSaveDrawingPictureListenerListener: SaveDrawingPictureListener
 
     // 초기화
@@ -52,6 +59,12 @@ class DrawingCanvas : AppCompatImageView {
         }
         strokeEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
+        cropPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.BLUE
+            strokeWidth = 3f
+            style = Paint.Style.STROKE
+            pathEffect = DashPathEffect(floatArrayOf(5f, 5f), 3f)
         }
         penMode = MODE_PEN
 
@@ -88,9 +101,13 @@ class DrawingCanvas : AppCompatImageView {
                     color = Color.TRANSPARENT
                 })
             }
-            MODE_STROKE_ERASER -> {
-                parentCanvas?.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+//            MODE_STROKE_ERASER -> {
+//                parentCanvas?.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+//                canvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+//            }
+            MODE_CROP -> {
                 canvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
+                canvas.drawRect(cropStartPoint?.x!!, cropStartPoint?.y!!, cropLastPoint?.x!!, cropLastPoint?.y!!, getCurrentPaint())
             }
             else -> {
                 canvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
@@ -116,7 +133,12 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     private fun actionDown(event: MotionEvent) {
-        path.moveTo(event.x, event.y)
+        if (penMode == MODE_CROP) {
+            cropStartPoint = PointF()
+            cropStartPoint?.set(event.x, event.y)
+        } else {
+            path.moveTo(event.x, event.y)
+        }
     }
 
     private fun actionMove(event: MotionEvent) {
@@ -130,9 +152,9 @@ class DrawingCanvas : AppCompatImageView {
                 path.addCircle(event.x + 10, event.y + 10, 30f, Path.Direction.CW)
                 parentCanvas?.drawPath(path, getCurrentPaint())
             }
-            MODE_STROKE_ERASER -> {
-                path.lineTo(event.x, event.y)
-                strokeEraserList.add(path)
+            MODE_CROP -> {
+                cropLastPoint = PointF()
+                cropLastPoint?.set(event.x, event.y)
             }
         }
     }
@@ -140,7 +162,11 @@ class DrawingCanvas : AppCompatImageView {
     private fun actionUp() {
         when (penMode) {
             MODE_PEN ->  strokePathList.add(path)
-            MODE_STROKE_ERASER -> {}
+            MODE_CROP -> {
+//                cropStartPoint = null
+//                cropLastPoint = null
+                saveCropBitmap()
+            }
         }
         path = SerializablePath()
     }
@@ -148,7 +174,8 @@ class DrawingCanvas : AppCompatImageView {
     private fun getCurrentPaint(): Paint  = when(penMode) {
         MODE_PEN -> drawingPaint
         MODE_AREA_ERASER -> areaEraserPaint
-        MODE_STROKE_ERASER -> strokeEraserPaint
+        MODE_CROP -> cropPaint
+//        MODE_STROKE_ERASER -> strokeEraserPaint
         else -> drawingPaint
     }
 
@@ -195,6 +222,17 @@ class DrawingCanvas : AppCompatImageView {
         }
     }
 
+    private fun saveCropBitmap() {
+        //1. crop할 비트맵 사이즈 지정
+        val cropWidthSize = (cropLastPoint?.x!! - cropStartPoint?.x!!).toInt()
+        val cropHeightSize = (cropLastPoint?.y!! - cropStartPoint?.y!!).toInt()
+        cropBitmap = createBitmap(cropWidthSize, cropHeightSize, Bitmap.Config.ARGB_8888)
+//        cropCanvas = Canvas(parentBitmap!!)
+//        cropCanvas?.drawBitmap(cropBitmap!!,cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
+        parentCanvas?.drawBitmap(cropBitmap!!, cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
+        onSaveDrawingPictureListenerListener.onSave(cropBitmap!!)
+    }
+
     fun setSavePictureListener(listener: SaveDrawingPictureListener) {
         onSaveDrawingPictureListenerListener = listener
     }
@@ -206,7 +244,7 @@ class DrawingCanvas : AppCompatImageView {
     companion object {
         const val MODE_PEN = 1
         const val MODE_AREA_ERASER = 2
-        const val MODE_STROKE_ERASER = 3
-        const val MODE_CLEAR_ALL = 5
+        const val MODE_CROP = 3
+        const val MODE_CLEAR_ALL = 4
     }
 }

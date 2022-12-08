@@ -6,9 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import com.woojoo.tabletdrawing.fragments.CanvasFragment
+import com.woojoo.tabletdrawing.CanvasFragment
 import com.woojoo.tabletdrawing.DrawingMode
-import com.woojoo.tabletdrawing.RectangleDrawActivity
 import com.woojoo.tabletdrawing.adapters.CanvasViewPagerAdapter
 import com.woojoo.tabletdrawing.adapters.DrawingListAdapter
 import com.woojoo.tabletdrawing.customView.DrawingCanvas
@@ -28,8 +27,8 @@ class MainActivity : AppCompatActivity() {
                 val imageUri = result.data?.data
                 imageUri?.let { imageUri ->
                     val findFragment = getCurrentFragment()
-                    findFragment?.let {
-                        it.setBitmap(imageUri)
+                    findFragment?.let { canvasFragment ->
+                        canvasFragment.setBitmap(imageUri)
                     } ?: run {
                         Log.d("NotFoundFragment", "${binding.viewPagerDrawing.currentItem}")
                     }
@@ -77,7 +76,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.imageViewRectangle.setOnClickListener {
-            startActivity(Intent(this, RectangleDrawActivity::class.java))
+//            startActivity(Intent(this, RectangleDrawActivity::class.java))
+            getCurrentFragment()?.setMode(DrawingMode.CropMode)
         }
 
         binding.imageViewGetImage.setOnClickListener {

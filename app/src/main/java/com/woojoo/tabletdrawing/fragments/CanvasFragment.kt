@@ -33,6 +33,9 @@ class CanvasFragment: Fragment() {
             is DrawingMode.EraserMode -> {
                 binding.layoutDrawing.setMode(DrawingCanvas.MODE_AREA_ERASER)
             }
+            is DrawingMode.CropMode -> {
+                binding.layoutDrawing.setMode(DrawingCanvas.MODE_CROP)
+            }
             else -> {
                 binding.layoutDrawing.setMode(DrawingCanvas.MODE_CLEAR_ALL)
             }
