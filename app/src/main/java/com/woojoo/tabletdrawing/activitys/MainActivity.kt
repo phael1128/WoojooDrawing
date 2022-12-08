@@ -1,4 +1,4 @@
-package com.woojoo.tabletdrawing
+package com.woojoo.tabletdrawing.activitys
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
+import com.woojoo.tabletdrawing.fragments.CanvasFragment
+import com.woojoo.tabletdrawing.DrawingMode
+import com.woojoo.tabletdrawing.RectangleDrawActivity
 import com.woojoo.tabletdrawing.adapters.CanvasViewPagerAdapter
 import com.woojoo.tabletdrawing.adapters.DrawingListAdapter
 import com.woojoo.tabletdrawing.customView.DrawingCanvas
