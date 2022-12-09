@@ -54,7 +54,7 @@ class DrawingCanvas : AppCompatImageView {
         areaEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             strokeWidth = 50f
             color = Color.BLUE
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
         }
         strokeEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
@@ -115,7 +115,7 @@ class DrawingCanvas : AppCompatImageView {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
+//        if (event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) return false
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> actionDown(event)

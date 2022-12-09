@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TabletDrawing</string>
+    <string name="app_name">WoojooDrawing</string>
     <string name="textView_currentPage">번 페이지</string>
     <string name="complete_save">저장완료</string>
 </resources>
