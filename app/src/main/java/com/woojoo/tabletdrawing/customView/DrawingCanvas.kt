@@ -35,7 +35,6 @@ class DrawingCanvas : AppCompatImageView {
     private lateinit var savedCanvas: Canvas
 
     private var cropBitmap: Bitmap? = null
-    private var cropCanvas: Canvas? = null
 
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
@@ -101,10 +100,6 @@ class DrawingCanvas : AppCompatImageView {
                     color = Color.TRANSPARENT
                 })
             }
-//            MODE_STROKE_ERASER -> {
-//                parentCanvas?.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
-//                canvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
-//            }
             MODE_CROP -> {
                 canvas.drawBitmap(parentBitmap!!, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
                 canvas.drawRect(cropStartPoint?.x!!, cropStartPoint?.y!!, cropLastPoint?.x!!, cropLastPoint?.y!!, getCurrentPaint())
@@ -135,6 +130,7 @@ class DrawingCanvas : AppCompatImageView {
     private fun actionDown(event: MotionEvent) {
         if (penMode == MODE_CROP) {
             cropStartPoint = PointF()
+            cropLastPoint = PointF()
             cropStartPoint?.set(event.x, event.y)
         } else {
             path.moveTo(event.x, event.y)
@@ -153,7 +149,6 @@ class DrawingCanvas : AppCompatImageView {
                 parentCanvas?.drawPath(path, getCurrentPaint())
             }
             MODE_CROP -> {
-                cropLastPoint = PointF()
                 cropLastPoint?.set(event.x, event.y)
             }
         }
@@ -162,11 +157,7 @@ class DrawingCanvas : AppCompatImageView {
     private fun actionUp() {
         when (penMode) {
             MODE_PEN ->  strokePathList.add(path)
-            MODE_CROP -> {
-//                cropStartPoint = null
-//                cropLastPoint = null
-                saveCropBitmap()
-            }
+            MODE_CROP -> saveCropBitmap()
         }
         path = SerializablePath()
     }
@@ -175,7 +166,6 @@ class DrawingCanvas : AppCompatImageView {
         MODE_PEN -> drawingPaint
         MODE_AREA_ERASER -> areaEraserPaint
         MODE_CROP -> cropPaint
-//        MODE_STROKE_ERASER -> strokeEraserPaint
         else -> drawingPaint
     }
 
@@ -221,14 +211,11 @@ class DrawingCanvas : AppCompatImageView {
             onSaveDrawingPictureListenerListener.onSave(bitmap)
         }
     }
-
     private fun saveCropBitmap() {
-        //1. crop할 비트맵 사이즈 지정
-        val cropWidthSize = (cropLastPoint?.x!! - cropStartPoint?.x!!).toInt()
-        val cropHeightSize = (cropLastPoint?.y!! - cropStartPoint?.y!!).toInt()
-        cropBitmap = createBitmap(cropWidthSize, cropHeightSize, Bitmap.Config.ARGB_8888)
-
-        parentCanvas?.drawBitmap(cropBitmap!!, cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
+        val cropWidthSize = cropLastPoint?.x!!.coerceAtLeast(cropStartPoint?.x!!) - cropLastPoint?.x!!.coerceAtMost(cropStartPoint?.x!!)
+        val cropHeightSize = cropLastPoint?.y!!.coerceAtLeast(cropStartPoint?.y!!) - cropLastPoint?.y!!.coerceAtMost(cropStartPoint?.y!!)
+        if (cropBitmap != null) cropBitmap?.recycle()
+        cropBitmap = Bitmap.createBitmap(parentBitmap!!, cropStartPoint?.x!!.toInt(), cropStartPoint?.y!!.toInt(), cropWidthSize.toInt(), cropHeightSize.toInt())
         onSaveDrawingPictureListenerListener.onSave(cropBitmap!!)
     }
 
