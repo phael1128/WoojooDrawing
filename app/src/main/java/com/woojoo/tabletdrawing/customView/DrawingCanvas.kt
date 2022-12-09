@@ -227,8 +227,7 @@ class DrawingCanvas : AppCompatImageView {
         val cropWidthSize = (cropLastPoint?.x!! - cropStartPoint?.x!!).toInt()
         val cropHeightSize = (cropLastPoint?.y!! - cropStartPoint?.y!!).toInt()
         cropBitmap = createBitmap(cropWidthSize, cropHeightSize, Bitmap.Config.ARGB_8888)
-//        cropCanvas = Canvas(parentBitmap!!)
-//        cropCanvas?.drawBitmap(cropBitmap!!,cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
+
         parentCanvas?.drawBitmap(cropBitmap!!, cropWidthSize.toFloat(), cropHeightSize.toFloat(), Paint(Paint.ANTI_ALIAS_FLAG))
         onSaveDrawingPictureListenerListener.onSave(cropBitmap!!)
     }
