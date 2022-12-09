@@ -122,7 +122,6 @@ class DrawingCanvas : AppCompatImageView {
             MotionEvent.ACTION_MOVE -> actionMove(event)
             MotionEvent.ACTION_UP -> actionUp()
         }
-
         invalidate()
         return true
     }
@@ -215,8 +214,12 @@ class DrawingCanvas : AppCompatImageView {
         val cropWidthSize = cropLastPoint?.x!!.coerceAtLeast(cropStartPoint?.x!!) - cropLastPoint?.x!!.coerceAtMost(cropStartPoint?.x!!)
         val cropHeightSize = cropLastPoint?.y!!.coerceAtLeast(cropStartPoint?.y!!) - cropLastPoint?.y!!.coerceAtMost(cropStartPoint?.y!!)
         if (cropBitmap != null) cropBitmap?.recycle()
+        //createBitmap(@NonNull Bitmap source, int x, int y, int width, int height)
         cropBitmap = Bitmap.createBitmap(parentBitmap!!, cropStartPoint?.x!!.toInt(), cropStartPoint?.y!!.toInt(), cropWidthSize.toInt(), cropHeightSize.toInt())
+        // 기존 비트맵을 기준으로 x, y 좌표값에서 부터 width, height 만큼 따오는 느낌
+        // 마치 누끼 따는것 처럼
         onSaveDrawingPictureListenerListener.onSave(cropBitmap!!)
+
     }
 
     fun setSavePictureListener(listener: SaveDrawingPictureListener) {
