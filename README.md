@@ -4,9 +4,9 @@ Tablet Drawing
 
 
 기능 1 [Canvas에 그리기] : Canvas를 이해하고 이를 기반으로 CustomView 를 만든다.<br>
----  
+--- <br>  
 
- <br>
+
 ![drawingmotion](https://user-images.githubusercontent.com/77264918/206087660-9c1225b0-0101-473a-b641-e0485b364363.gif)       
 
 
