@@ -12,6 +12,9 @@ import androidx.core.graphics.createBitmap
 import com.woojoo.tabletdrawing.R
 import com.woojoo.tabletdrawing.SerializablePath
 import com.woojoo.tabletdrawing.interfaces.SaveDrawingPictureListener
+import com.woojoo.tabletdrawing.utils.getCropPaint
+import com.woojoo.tabletdrawing.utils.getDrawingEraser
+import com.woojoo.tabletdrawing.utils.getDrawingPen
 import kotlin.collections.ArrayList
 
 class DrawingCanvas : AppCompatImageView {
@@ -23,7 +26,6 @@ class DrawingCanvas : AppCompatImageView {
     private var penMode  = 0
     private lateinit var drawingPaint: Paint
     private lateinit var areaEraserPaint: Paint
-    private lateinit var strokeEraserPaint: Paint
     private lateinit var cropPaint: Paint
 
     private var cropStartPoint: PointF? = null
@@ -38,35 +40,15 @@ class DrawingCanvas : AppCompatImageView {
 
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
-    private var strokeEraserList = ArrayList<SerializablePath>()
 
     private lateinit var onSaveDrawingPictureListenerListener: SaveDrawingPictureListener
 
     // 초기화
-
     private fun init() {
-        //ANTI_ALIAS_FLAG : 계단현상 방지
-        drawingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.BLACK
-            style = Paint.Style.STROKE
-            strokeWidth = 5f
-        }
-        areaEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            strokeWidth = 50f
-            color = Color.BLUE
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
-        }
-        strokeEraserPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        }
-        cropPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.BLUE
-            strokeWidth = 3f
-            style = Paint.Style.STROKE
-            pathEffect = DashPathEffect(floatArrayOf(5f, 5f), 3f)
-        }
+        drawingPaint = getDrawingPen()
+        areaEraserPaint = getDrawingEraser()
+        cropPaint = getCropPaint()
         penMode = MODE_PEN
-
         this.setBackgroundColor(this.rootView.context.getColor(R.color.white))
     }
 
