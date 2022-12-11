@@ -15,6 +15,7 @@ import com.woojoo.tabletdrawing.interfaces.SaveDrawingPictureListener
 import com.woojoo.tabletdrawing.utils.getCropPaint
 import com.woojoo.tabletdrawing.utils.getDrawingEraser
 import com.woojoo.tabletdrawing.utils.getDrawingPen
+import java.util.Hashtable
 import kotlin.collections.ArrayList
 
 class DrawingCanvas : AppCompatImageView {
@@ -40,6 +41,8 @@ class DrawingCanvas : AppCompatImageView {
 
     private var path = SerializablePath()
     private var strokePathList = ArrayList<SerializablePath>()
+
+    private val hashTable = Hashtable<XYCoordination, Options>()
 
     private lateinit var onSaveDrawingPictureListenerListener: SaveDrawingPictureListener
 
@@ -121,12 +124,17 @@ class DrawingCanvas : AppCompatImageView {
     private fun actionMove(event: MotionEvent) {
         when (penMode) {
             MODE_PEN -> {
+//                val key = XYCoordination(event.x, event.y)
+//                hashTable[key] = Options(true)
                 path.lineTo(event.x, event.y)
                 parentCanvas?.drawPath(path, getCurrentPaint())
             }
             MODE_AREA_ERASER -> {
                 path.reset()
                 path.addCircle(event.x + 10, event.y + 10, 30f, Path.Direction.CW)
+//                if (isPenArea(event.x, event.y)) {
+//                    parentCanvas?.drawPath(path, getCurrentPaint())
+//                }
                 parentCanvas?.drawPath(path, getCurrentPaint())
             }
             MODE_CROP -> {
@@ -149,7 +157,6 @@ class DrawingCanvas : AppCompatImageView {
         MODE_CROP -> cropPaint
         else -> drawingPaint
     }
-
 
     fun setMode(mode: Int) {
         penMode = mode
@@ -176,13 +183,10 @@ class DrawingCanvas : AppCompatImageView {
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
         }
         val convertBitmap = Bitmap.createScaledBitmap(uriBitmap, 600, 600, false)
+        // 비트맵 로딩 하기전 hashTable 에 넣기
         parentCanvas?.let {
             it.drawBitmap(convertBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
-        } ?: run {
-            parentCanvas = Canvas(parentBitmap!!)
-            parentCanvas!!.drawBitmap(convertBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
         }
-
     }
 
     fun saveDrawing() {
@@ -210,6 +214,23 @@ class DrawingCanvas : AppCompatImageView {
 
     private fun getParentCanvas(bitmap: Bitmap) = Canvas(bitmap).apply {
         drawColor(Color.WHITE)
+    }
+
+    private fun isPenArea(x: Float, y: Float): Boolean {
+        val key = XYCoordination(x, y)
+        val value = hashTable.getOrDefault(key, null)
+
+        Log.d("isPenArea : ", "${key.hashCode()} $value")
+        return value != null && value.isPenLine
+    }
+
+    fun isImageArea(x: Float, y: Float): Boolean {
+        val currentCoordinates = XYCoordination(x, y)
+        /*
+        * 좌표를 탐색해서 이미지를 찾는다.
+        * */
+        val isBitmapArea = hashTable.getOrDefault(currentCoordinates, null)
+        return isBitmapArea != null
     }
 
     companion object {
