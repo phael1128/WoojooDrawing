@@ -7,7 +7,7 @@ Tablet Drawing
 ---
 
  
-![drawingmotion](https://user-images.githubusercontent.com/77264918/206087660-9c1225b0-0101-473a-b641-e0485b364363.gif)
+![drawingmotion](https://user-images.githubusercontent.com/77264918/206087660-9c1225b0-0101-473a-b641-e0485b364363.gif)       
 
 
 기능 2[저장하기] : 현재 Canvas의 그린 그림을 저장한다.<br>
