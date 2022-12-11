@@ -23,3 +23,10 @@ Tablet Drawing
 
 
 ![Screen_Recording_20221208-224723_TabletDrawing_1](https://user-images.githubusercontent.com/77264918/206463309-da6dce89-de46-4dea-8d30-f1f917c1068b.gif)
+
+
+목표 4 : 현재 Canvas에서 Crop기능을 구현한다. <br>
+---
+
+
+![20221211_165940](https://user-images.githubusercontent.com/77264918/206892779-1edb9444-3df7-412f-944a-d87127286dd7.gif)
